@@ -1,0 +1,10 @@
+{
+"SpaProxyServer": {
+"ServerUrl": "https://localhost:6082",
+"RedirectUrl": "",
+"LaunchCommand": "npm start",
+"WorkingDirectory": "D:\\Github\\StudySync\\StudySync.Server\\..\\studysync.client",
+"MaxTimeoutInSeconds": "120",
+"KeepRunning": "false"
+}
+}

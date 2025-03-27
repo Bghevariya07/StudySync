@@ -1,0 +1,24 @@
+{
+  "Version": 1,
+  "Hash": "t5js8XiFvrS5RwR9frxBVrhuqHUMcd7XPJkwCUzFau4=",
+  "Source": "StudySync.Server",
+  "BasePath": "_content/StudySync.Server",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [
+    {
+      "Identity": "D:\\Github\\StudySync\\studysync.client\\studysync.client.esproj",
+      "Version": 2,
+      "Source": "studysync.client",
+      "GetPublishAssetsTargets": "GetCurrentProjectPublishStaticWebAssetItems",
+      "AdditionalPublishProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalPublishPropertiesToRemove": "WebPublishProfileFile;TargetFramework",
+      "GetBuildAssetsTargets": "GetCurrentProjectBuildStaticWebAssetItems",
+      "AdditionalBuildProperties": "Configuration=Debug;Platform=AnyCPU",
+      "AdditionalBuildPropertiesToRemove": "WebPublishProfileFile;TargetFramework"
+    }
+  ],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
