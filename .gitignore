@@ -1,0 +1,51 @@
+# === GLOBAL IGNORES ===
+
+# Node modules
+**/node_modules/
+
+# Log files
+npm-debug.log*
+yarn-error.log*
+
+# Environment files
+**/.env
+**/.env.local
+
+# System files
+.DS_Store
+Thumbs.db
+
+# IDEs and editor settings
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.sublime-workspace
+
+# === FRONTEND SPECIFIC ===
+frontend/dist/
+frontend/.angular/
+frontend/.angular/cache/
+frontend/.sass-cache/
+frontend/connect.lock
+frontend/coverage/
+frontend/libpeerconnection.log
+frontend/testem.log
+frontend/typings/
+frontend/.history/
+frontend/tmp/
+frontend/out-tsc/
+
+# Angular build tools
+frontend/build/
+frontend/bazel-out/
+
+# === BACKEND SPECIFIC ===
+backend/node_modules/
+backend/coverage/
+backend/build/
+backend/tmp/
+backend/.env
+backend/.env.local
