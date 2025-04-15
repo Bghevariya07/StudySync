@@ -1,0 +1,89 @@
+main {
+  margin-top: 3rem;
+  padding: 4rem;
+}
+
+.cal-window {
+  display: flex;
+  gap: 4rem;
+}
+
+.calendar {
+  flex: 4;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+ng-select {
+  z-index: 10;
+}
+
+::ng-deep .ng-select .ng-select-container {
+  background-color: #ffffff !important;
+  border: 1px solid #ccc;
+}
+
+::ng-deep .ng-dropdown-panel {
+  background-color: #fff !important;
+  z-index: 999;
+}
+
+.window {
+  flex: 1;
+  background: #fff;
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+
+  .form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+
+    input,
+    textarea {
+      padding: 0.5rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .btn {
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  }
+}
+
+.event-legend {
+  margin-top: 1rem;
+  padding-left: 1rem;
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+  }
+
+  .legend-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+}
+
+.window p.text-purple-600 {
+  background-color: #f3e8ff;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}
+
+.window p.text-green-600 {
+  background-color: #E6F4EA;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+}

@@ -1,0 +1,63 @@
+<!-- 🌐 Top Navigation Bar -->
+<app-navbar></app-navbar>
+
+<app-sidebar *ngIf="isLoggedIn()"></app-sidebar>
+
+
+<div class="landing-content" [ngClass]="{'shifted': isLoggedIn()}">
+<!-- <div class="landing-content" > -->
+
+  <section class="hero">
+    <h1>Find your <span>StudySync</span> within a minute</h1>
+    <p>
+      Unlock your full potential with the power of teamwork and expert guidance.
+      Join us to elevate your learning through collaboration.
+    </p>
+    <button class="btn-get-started">Get Started →</button>
+  </section>
+
+  <section class="offer-section">
+    <h2 class="text-center text-2xl font-bold mb-8 text-gray-900">What We Offer</h2>
+    <div class="flex flex-wrap justify-center gap-8">
+      <div class="bg-white p-6 rounded-lg shadow w-64 text-center card">
+        <img src="./assets/calendar-icon-1.png" width="40" class="mx-auto mb-4" alt="Schedule icon" />
+        <h3 class="text-lg font-semibold text-gray-800">Schedule System</h3>
+        <p class="text-sm text-gray-600 mt-2">Provide schedule system so you can view and edit availability.</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow w-64 text-center card">
+        <img src="./assets/group-icon-1.png" width="40" class="mx-auto mb-4" alt="Study Group icon" />
+        <h3 class="text-lg font-semibold text-gray-800">Study Group</h3>
+        <p class="text-sm text-gray-600 mt-2">Create or join a study group session of your courses.</p>
+      </div>
+      <div class="bg-white p-6 rounded-lg shadow w-64 text-center card">
+        <img src="./assets/group-icon-2.png" width="40" class="mx-auto mb-4" alt="Tutor icon" />
+        <h3 class="text-lg font-semibold text-gray-800">Tutor</h3>
+        <p class="text-sm text-gray-600 mt-2">Find a tutor or become one for your courses.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 💡 Why Choose Us -->
+  <section class="why-section">
+    <div class="why-image">
+      <img src="./assets/main-image-2.svg" alt="Why Choose Illustration" />
+    </div>
+
+    <div class="why-text">
+      <h2 class="font-bold">Why Choose StudySync</h2>
+      <div class="benefit">
+        <strong>Personalized Learning</strong>
+        <p>Access and tailor the learning experience to what you need from the course you choose.</p>
+      </div>
+      <div class="benefit">
+        <strong>Enhance Productivity</strong>
+        <p>Studying with others helps boost motivation and productivity to stay on track with your goals.</p>
+      </div>
+      <div class="benefit">
+        <strong>Networking Opportunities</strong>
+        <p>Connect with like-minded individuals, build relationships, and expand your academic and professional network.
+        </p>
+      </div>
+    </div>
+  </section>
+</div>

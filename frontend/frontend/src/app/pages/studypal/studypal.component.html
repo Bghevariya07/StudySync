@@ -1,0 +1,52 @@
+<main class="main-div">
+    <h2 class="font-bold text-2xl mb-8">Create a New Session</h2>
+    <div class="cal-window">
+
+        <daypilot-calendar [config]="config" [events]="events" class="calendar"></daypilot-calendar>
+
+        <div class="window">
+            <ng-container *ngIf="selected; else nothing">
+                <div class="mb-4">
+                    <p class="mb-2"><strong>Selected Time Slot</strong></p>
+                    <p><strong>Day:</strong> {{ selected?.day }} , {{ selected?.start?.toString("d MMMM") }}</p>
+                    <p><strong>From:</strong> {{ selected?.start?.toString("h:mm tt") }} <strong>To:</strong> {{
+                        selected?.end?.toString("h:mm tt") }}</p>
+                </div>
+
+                <div *ngIf="!selected.showForm">
+                    <button class="btn bg-blue-600 text-white" (click)="showForm()">Create Session</button>
+                </div>
+
+                <!-- <div *ngIf="selected.showForm" class="form-fields">
+                    <input type="text" placeholder="Session Name" [(ngModel)]="selected.sessionName" />
+                    <textarea rows="4" placeholder="Notes" [(ngModel)]="selected.sessionNotes"></textarea>
+                    <div class="mt-3 flex gap-4">
+                        <button type="button" class="btn bg-blue-600 text-white" (click)="saveSession()">Save & Create</button>
+                        <button type="button" class="btn bg-gray-300 text-black" (click)="cancelSelection()">Cancel</button>
+                      </div>                      
+                </div> -->
+
+                <div *ngIf="selected.showForm" class="form-fields">
+                    <input type="text" placeholder="Session Name" [(ngModel)]="selected.sessionName" />
+                    <textarea rows="4" placeholder="Notes" [(ngModel)]="selected.sessionNotes"></textarea>
+
+                    <div class="mt-3 flex gap-4">
+                        <button class="btn bg-blue-600 text-white" (click)="saveSession()">
+                            {{ selected.isEdit ? 'Update Session' : 'Save & Create' }}
+                        </button>
+
+                        <button class="btn bg-gray-300 text-black" (click)="cancelSelection()">Cancel</button>
+
+                        <button *ngIf="selected.isEdit" class="btn bg-red-600 text-white"
+                            (click)="deleteSession()">Delete Session</button>
+                    </div>
+                </div>
+
+            </ng-container>
+
+            <ng-template #nothing>
+                <p>Select a time slot on the calendar to start.</p>
+            </ng-template>
+        </div>
+    </div>
+</main>

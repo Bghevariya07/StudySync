@@ -1,0 +1,24 @@
+<header class="navbar" >
+  <div class="nav-left">
+    <a routerLink="/">
+      <img src="./assets/StudySync.png" alt="Site Logo" class="logo" />
+    </a>
+    <a routerLink="/">Home</a>
+    <a routerLink="/faq">FAQ</a>
+    <a routerLink="/contact">Contact</a>
+  </div>
+
+  <div class="nav-right">
+    <ng-container *ngIf="isLoggedIn(); else guestLinks">
+      <div class="profile-icon">
+        <img src="./assets/avatar.png" alt="Profile icon" />
+      </div>
+      <button (click)="logout()" class="btn-logout">Logout</button>
+    </ng-container>
+
+    <ng-template #guestLinks>
+      <a routerLink="/login" class="btn-login">Login</a>
+      <a routerLink="/register" class="btn-register">Sign Up</a>
+    </ng-template>
+  </div>
+</header>

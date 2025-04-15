@@ -1,0 +1,103 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ddd;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.5rem;
+  z-index: 100 ;
+  // z-index: 1000;
+
+  &.logged-in {
+    left: 220px; // shift to right if sidebar is shown
+  }
+
+  .nav-left,
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+  }
+
+  .nav-left a {
+    font-weight: 500;
+    color: #333;
+    text-decoration: none;
+
+    &:hover {
+      color: #007bff;
+    }
+  }
+
+  .nav-right {
+    a {
+      font-weight: 500;
+      color: #333;
+      text-decoration: none;
+
+      &:hover {
+        color: black;
+      }
+    }
+
+    .profile-icon {
+      width: 1.8rem;
+      img {
+        width: 100%;
+        border-radius: 50%;
+      }
+    }
+  }
+}
+
+.logo {
+  height: 60px;
+  margin-right: 1rem;
+  vertical-align: middle;
+}
+
+.btn-login {
+  background: transparent;
+  color: black;
+  border: 2px solid #007bff;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #007bff;
+    color: green;
+  }
+}
+
+.btn-register,
+.btn-logout {
+  background: #007bff;
+  color: white;
+  border: 2px solid #007bff;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+
+  &:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+  }
+}
+
+.btn-register {
+  a {
+    &:hover {
+      color: white;
+    }
+  }
+}

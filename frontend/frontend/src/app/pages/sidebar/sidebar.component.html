@@ -1,0 +1,32 @@
+<aside class="sidebar">
+    <div class="mt-4"></div>
+    <nav class="nav-links">
+        <a routerLink="/dashboard" routerLinkActive="active">
+            <img src="./assets/avatar.png" alt="Dashboard icon" />
+            Dashboard
+        </a>
+        <a routerLink="/studypal" routerLinkActive="active">
+            <img src="./assets/group-icon-2.png" alt="StudyPal icon" />
+            StudyPal
+        </a>
+        <a routerLink="/schedule" routerLinkActive="active">
+            <img src="./assets/calendar-icon-1.png" alt="Schedule icon" />
+            Schedule
+        </a>
+        <a routerLink="/chats" routerLinkActive="active">
+            <img src="./assets/send-icon.png" alt="Chats icon" />
+            Chats
+        </a>
+        <a routerLink="/settings" routerLinkActive="active">
+            <img src="./assets/plus-icon-1.svg" alt="Settings icon" />
+            Settings
+        </a>
+    </nav>
+</aside>
+
+<app-navbar></app-navbar>
+
+
+<main class="content-area">
+    <router-outlet></router-outlet>
+</main>

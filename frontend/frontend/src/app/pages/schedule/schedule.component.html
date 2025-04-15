@@ -1,0 +1,69 @@
+<main class="main-div">
+    <h2 class="font-bold text-2xl mb-8 mr-4">Sign Up for a Session</h2>
+    <!-- <div class="mb-6 flex items-center gap-4">
+        <label for="course-select" class="font-semibold text-lg whitespace-nowrap">Filter by Course:</label>
+
+        <ng-select [items]="courses" bindLabel="coursename" bindValue="courseId" [(ngModel)]="selectedCourseId"
+            placeholder="Select a course" (change)="loadEvents()" class="w-64">
+        </ng-select>
+    </div> -->
+
+    <div class="cal-window">
+
+        <daypilot-calendar [config]="config" [events]="events" class="calendar">
+        </daypilot-calendar>
+
+        <div class="window">
+            <ng-container *ngIf="selectedEvent; else nothing">
+                <div class="mb-4">
+                    <p><strong>Session:</strong> {{ selectedEvent.sessionName }}</p>
+                    <p><strong>Time:</strong>
+                        {{ selectedEvent.start.toString("d MMM yyyy h:mm tt") }} -
+                        {{ selectedEvent.end.toString("h:mm tt") }}
+                    </p>
+                    <p *ngIf="selectedEvent.note"><strong>Notes:</strong> {{ selectedEvent.note }}</p>
+                </div>
+
+                <ng-container *ngIf="isUserOwner; else notOwner">
+                    <p class="text-purple-600 font-medium mb-2">You are the host of this session.</p>
+                    <p class="text-sm text-gray-700">To update session details, please visit the
+                        <strong>StudyPal</strong> page.</p>
+                </ng-container>
+
+                <ng-template #notOwner>
+                    <ng-container *ngIf="!isUserSignedUp; else signedUp">
+                        <button class="btn bg-green-600 text-white mt-2" (click)="signupForSession()">
+                            Join Session
+                        </button>
+                    </ng-container>
+
+                    <ng-template #signedUp>
+                        <p class="text-green-600 font-medium mb-2">You’re registered!</p>
+                        <button class="btn bg-red-600 text-white mt-2" (click)="cancelSignup()">
+                            Leave Session
+                        </button>
+                    </ng-template>
+                </ng-template>
+
+            </ng-container>
+
+            <ng-template #nothing>
+                <p>Select a time slot on the calendar to start.</p>
+            </ng-template>
+        </div>
+
+    </div>
+    <div class="event-legend mt-6 flex flex-wrap gap-6 items-center text-sm text-gray-700">
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-green-600"></span> Registered Session
+        </div>
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-blue-600"></span> Available Session
+        </div>
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-purple-600"></span> Owned Session
+        </div>
+        <!-- ➕ Add more as needed -->
+    </div>
+
+</main>
