@@ -1,0 +1,27 @@
+[
+  {
+    "username": "janedoe",
+    "password": "securepassword123",
+    "email": "jane@example.com"
+  },
+  {
+    "username": "rahulpatel",
+    "password": "password456",
+    "email": "rahul.patel@dal.ca"
+  },
+  {
+    "username": "emnguyen",
+    "password": "emily1234",
+    "email": "emily.nguyen@outlook.com"
+  },
+  {
+    "username": "davidlee",
+    "password": "davidpwd2024",
+    "email": "david.lee@gmail.com"
+  },
+  {
+    "username": "fatimak",
+    "password": "fatima321",
+    "email": "fatima.khan@dal.ca"
+  }
+]

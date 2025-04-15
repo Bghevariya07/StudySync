@@ -1,0 +1,125 @@
+[  {
+    "coursename": "Introduction to Calculus",
+    "courseId": "MATH1010",
+    "university": "Dalhousie University"
+  },
+  {
+    "coursename": "Linear Algebra",
+    "courseId": "MATH1020",
+    "university": "University of Toronto"
+  },
+  {
+    "coursename": "Introduction to Programming",
+    "courseId": "CSCI1100",
+    "university": "University of British Columbia"
+  },
+  {
+    "coursename": "Data Structures",
+    "courseId": "CSCI2200",
+    "university": "University of Alberta"
+  },
+  {
+    "coursename": "Discrete Mathematics",
+    "courseId": "MATH1500",
+    "university": "McGill University"
+  },
+  {
+    "coursename": "General Chemistry I",
+    "courseId": "CHEM1010",
+    "university": "University of Calgary"
+  },
+  {
+    "coursename": "Physics I: Mechanics",
+    "courseId": "PHYS1001",
+    "university": "University of Manitoba"
+  },
+  {
+    "coursename": "Introduction to Psychology",
+    "courseId": "PSYC1000",
+    "university": "University of Waterloo"
+  },
+  {
+    "coursename": "Microeconomics",
+    "courseId": "ECON1010",
+    "university": "Western University"
+  },
+  {
+    "coursename": "Macroeconomics",
+    "courseId": "ECON1020",
+    "university": "Carleton University"
+  },
+  {
+    "coursename": "Introduction to Sociology",
+    "courseId": "SOCI1000",
+    "university": "York University"
+  },
+  {
+    "coursename": "Object-Oriented Programming",
+    "courseId": "CSCI2100",
+    "university": "Concordia University"
+  },
+  {
+    "coursename": "Software Engineering Fundamentals",
+    "courseId": "CSCI3000",
+    "university": "Simon Fraser University"
+  },
+  {
+    "coursename": "Introduction to Statistics",
+    "courseId": "STAT1000",
+    "university": "Queen's University"
+  },
+  {
+    "coursename": "Artificial Intelligence Basics",
+    "courseId": "CSCI3300",
+    "university": "University of Ottawa"
+  },
+  {
+    "coursename": "Database Systems",
+    "courseId": "CSCI3400",
+    "university": "University of Saskatchewan"
+  },
+  {
+    "coursename": "Web Development Fundamentals",
+    "courseId": "CSCI2500",
+    "university": "Dalhousie University"
+  },
+  {
+    "coursename": "Digital Logic Design",
+    "courseId": "CSCI2700",
+    "university": "University of Victoria"
+  },
+  {
+    "coursename": "Operating Systems",
+    "courseId": "CSCI3600",
+    "university": "Université de Montréal"
+  },
+  {
+    "coursename": "Ethics in Technology",
+    "courseId": "CSCI3900",
+    "university": "Toronto Metropolitan University"
+  },
+  {
+    "coursename": "Introduction to Business",
+    "courseId": "BUSI1001",
+    "university": "University of Guelph"
+  },
+  {
+    "coursename": "Public Speaking",
+    "courseId": "COMM1010",
+    "university": "University of New Brunswick"
+  },
+  {
+    "coursename": "Environmental Science",
+    "courseId": "ENVS1000",
+    "university": "University of Regina"
+  },
+  {
+    "coursename": "Creative Writing",
+    "courseId": "ENGL1200",
+    "university": "University of Lethbridge"
+  },
+  {
+    "coursename": "World History",
+    "courseId": "HIST1100",
+    "university": "University of Prince Edward Island"
+  }]

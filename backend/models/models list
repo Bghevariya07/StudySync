@@ -1,0 +1,32 @@
+userProfile {
+    objectID:
+    firstname: string
+    lastname: string
+    email: string-email
+    username: string
+    password: 
+    university: string
+}
+
+user {
+    objectID:
+    username:
+    courses: array/list
+}
+
+course {
+    objectId:
+    coursename: string 
+    courseId: string
+    university: string
+}
+
+{
+    "sessionId": "CSCI4146-janedoe-1744982400000-1744986000000",
+    "timeFrom": 1744982400000,
+    "timeTo": 1744986000000,
+    "courseId": "CSCI4145",
+    "sessionName": "System Programming",
+    "note": "Discussing compiler optimizations"
+  }
+  
