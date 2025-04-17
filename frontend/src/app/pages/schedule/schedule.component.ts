@@ -23,6 +23,7 @@ export class ScheduleComponent implements OnInit {
   isUserOwner: boolean = false;
   courses: any[] = [];
   selectedCourseId: string = '';
+  isEventPast; boolean;
 
   constructor(
     private http: HttpClient,
@@ -37,7 +38,12 @@ export class ScheduleComponent implements OnInit {
     onEventClick: (args) => this.selectEvent(args),
     eventMoveHandling: "Disabled",
     eventResizeHandling: "Disabled",
-    timeRangeSelectedHandling: "Disabled"
+    timeRangeSelectedHandling: "Disabled",
+    onBeforeCellRender: (args) => {
+      if (args.cell.start < DayPilot.Date.now()) {
+        args.cell.properties.backColor = "#f3f4f6"; // soft gray column background
+      }
+    }
   };
 
   ngOnInit(): void {
@@ -78,6 +84,7 @@ export class ScheduleComponent implements OnInit {
         this.events = schedules.map(schedule => {
           const isMember = schedule.members?.includes(username) && !schedule.sessionId?.includes(username);
           const isOwner = schedule.sessionId?.includes(username);
+          const isPast = schedule.timeFrom < new Date();
   
           return {
             id: schedule.sessionId,
@@ -88,8 +95,8 @@ export class ScheduleComponent implements OnInit {
             note: schedule.note,
             members: schedule.members || [],
             courseId: schedule.courseId,
-            barColor: isMember ? "#4CAF50" : isOwner ? "#7C3AED" : "#2196F3",
-            backColor: isMember ? "#e6f4ea" : isOwner ? "#F3E8FF" : "#e8f1fd"
+            barColor: isPast ? "#9ca3af" : isMember ? "#4CAF50" : isOwner ? "#7C3AED" : "#2196F3",
+            backColor: isPast ? "#f3f3f3" : isMember ? "#e6f4ea" : isOwner ? "#F3E8FF" : "#e8f1fd"
           };
         });
       },
@@ -109,6 +116,14 @@ export class ScheduleComponent implements OnInit {
       members: e.data.members || [],
       courseId: e.data.courseId,
     };
+
+    const today = new Date();
+
+    if (this.selectedEvent.start.toDate() < today) {
+      this.isEventPast = true;
+    } else {
+      this.isEventPast = false;
+    }
   
     const username = this.user.user.username;
     this.isUserSignedUp = this.selectedEvent.members.includes(username);

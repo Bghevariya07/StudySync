@@ -45,14 +45,14 @@
                     </div>
 
                     <div *ngIf="isEventPast" class="mb-4">
-                        <div>
-                            <p class="text-gray-600 font-medium mb-2">Session you have selected is already passed.</p>
-                        </div>
                         <p><strong>Session:</strong> {{ selected?.sessionName }}</p>
                         <p *ngIf="selected.sessionNotes"><strong>Notes:</strong> {{ selected?.sessionNotes }}</p>
                         <p><strong>Day:</strong> {{ selected?.day }} , {{ selected?.start?.toString("d MMMM") }}</p>
                         <p><strong>From:</strong> {{ selected?.start?.toString("h:mm tt") }} <strong>To:</strong> {{
                             selected?.end?.toString("h:mm tt") }}</p>
+                            <div>
+                                <p class="text-gray-600 font-medium mt-4">This session has already passed.</p>
+                            </div>
                     </div>
 
                 </ng-container>
@@ -78,13 +78,10 @@
 
     <div class="event-legend mt-6 flex flex-wrap gap-6 items-center text-sm text-gray-700">
         <div class="legend-item flex items-center gap-2">
-            <span class="legend-dot bg-green-600"></span> Registered Session
-        </div>
-        <div class="legend-item flex items-center gap-2">
             <span class="legend-dot bg-blue-500"></span> Available Session
         </div>
         <div class="legend-item flex items-center gap-2">
-            <span class="legend-dot bg-purple-600"></span> Owned Session
+            <span class="legend-dot bg-gray-500"></span> Past Session
         </div>
         <!-- ➕ Add more as needed -->
     </div>

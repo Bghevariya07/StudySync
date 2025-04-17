@@ -25,7 +25,7 @@ export class StudypalComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private scheduleService: ScheduleService
-  ) {}
+  ) { }
 
   config: DayPilot.CalendarConfig = {
     viewType: "Week",
@@ -44,13 +44,11 @@ export class StudypalComponent implements OnInit {
     },
     onEventClick: (args) => this.openSessionForEdit(args),
     onBeforeCellRender: (args) => {
-      if (args.cell.start < DayPilot.Date.today()) {
+      if (args.cell.start < DayPilot.Date.now()) {
         args.cell.properties.backColor = "#f3f4f6"; // soft gray column background
       }
     }
   };
-  
-  
 
   selected: {
     start: DayPilot.Date;
@@ -65,13 +63,13 @@ export class StudypalComponent implements OnInit {
     timeFrom?: Date;
     timeTo?: Date;
   } | null = null;
-  
+
   openSessionForEdit(args: any) {
     this.isPast = false;
 
     const event = args.e;
     const dayName = new Date(event.start().toString()).toLocaleDateString(undefined, { weekday: 'long' });
-  
+
     this.selected = {
       start: event.start(),
       end: event.end(),
@@ -85,27 +83,27 @@ export class StudypalComponent implements OnInit {
     };
 
     const today = new Date();
-  
+
     if (this.selected.start.toDate() < today) {
       // this.isPast = true;
       this.isEventPast = true;
     } else {
       this.isEventPast = false;
     }
-  }  
+  }
 
   selectTime(args: { start: DayPilot.Date, end: DayPilot.Date }) {
     this.isEventPast = false;
     const selectedDate = args.start.toDate();
     const today = new Date();
     today.setHours(0, 0, 0, 0);  // Reset time for accurate comparison
-  
+
     if (selectedDate < today) {
       return;
     }
-  
+
     const dayName = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
-  
+
     this.selected = {
       start: args.start,
       end: args.end,
@@ -139,20 +137,20 @@ export class StudypalComponent implements OnInit {
           id: schedule.sessionId,
           start: new DayPilot.Date(schedule.timeFrom),
           end: new DayPilot.Date(schedule.timeTo),
-          text: schedule.sessionName,
+          text: schedule.courseId + " \n" + schedule.sessionName,
           note: schedule.note || '',
           backColor: schedule.timeTo < Date.now() ? "#f3f3f3" : "#e8f1fd",
           barColor: schedule.timeTo < Date.now() ? "#9ca3af" : "#3b82f6"
         }));
-        this.events = events;      
-        
+        this.events = events;
+
       },
       error: (err) => {
         console.error('Failed to load events:', err);
       }
     });
   }
-  
+
   saveSession() {
     if (this.selected) {
       const startDate = this.selected.start instanceof DayPilot.Date
@@ -161,7 +159,7 @@ export class StudypalComponent implements OnInit {
       const endDate = this.selected.end instanceof DayPilot.Date
         ? this.selected.end.toDate()
         : new Date(this.selected.end);
-  
+
       const payload = {
         sessionName: this.selected.sessionName,
         note: this.selected.sessionNotes,
@@ -169,7 +167,7 @@ export class StudypalComponent implements OnInit {
         timeFrom: startDate.getTime(),
         timeTo: endDate.getTime()
       };
-  
+
       if (this.selected.isEdit && this.selected.sessionId) {
         // Edit existing session
         this.scheduleService.updateSchedule(this.selected.sessionId, payload).subscribe({
@@ -183,7 +181,7 @@ export class StudypalComponent implements OnInit {
         // Create new session
         const sessionId = this.createSessionId(payload.courseId, startDate, this.user.user.username);
         const fullPayload = { ...payload, sessionId, members: [this.user.user.username] };
-  
+
         this.scheduleService.addSchedule(fullPayload).subscribe({
           next: () => {
             this.selected = null;
@@ -194,27 +192,25 @@ export class StudypalComponent implements OnInit {
       }
     }
   }
-  
 
   deleteSession() {
-  if (this.selected && this.selected.sessionId) {
-    const hasMembers = this.selected.members && this.selected.members.length > 1;
-    const confirmMsg = hasMembers
-      ? 'There are users registered for this session. Are you sure you want to delete it?'
-      : 'Are you sure you want to delete this session?';
+    if (this.selected && this.selected.sessionId) {
+      const hasMembers = this.selected.members && this.selected.members.length > 1;
+      const confirmMsg = hasMembers
+        ? 'There are users registered for this session. Are you sure you want to delete it?'
+        : 'Are you sure you want to delete this session?';
 
-    if (confirm(confirmMsg)) {
-      this.scheduleService.deleteSchedule(this.selected.sessionId).subscribe({
-        next: () => {
-          this.selected = null;
-          this.loadEvents(this.user.user.username);
-        },
-        error: err => console.error('Delete failed:', err)
-      });
+      if (confirm(confirmMsg)) {
+        this.scheduleService.deleteSchedule(this.selected.sessionId).subscribe({
+          next: () => {
+            this.selected = null;
+            this.loadEvents(this.user.user.username);
+          },
+          error: err => console.error('Delete failed:', err)
+        });
+      }
     }
   }
-}
-  
 
   ngOnInit(): void {
     this.user = this.authService.getUserProfile();
@@ -224,6 +220,7 @@ export class StudypalComponent implements OnInit {
     }
 
     this.isPast = false;
+    this.isEventPast = false;
 
     this.loadEvents(this.user.user.username);
   }
