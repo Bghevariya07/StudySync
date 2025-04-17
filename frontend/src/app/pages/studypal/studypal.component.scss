@@ -44,3 +44,26 @@ main {
       }
     }
   }
+
+  .event-legend {
+    margin-top: 1rem;
+    padding-left: 1rem;
+  
+    .legend-item {
+      display: flex;
+      align-items: center;
+    }
+  
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+  }
+  
+  .window p.text-gray-600 {
+    background-color: #f1f5f9;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+  }

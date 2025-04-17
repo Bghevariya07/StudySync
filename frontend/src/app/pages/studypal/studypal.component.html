@@ -5,19 +5,21 @@
         <daypilot-calendar [config]="config" [events]="events" class="calendar"></daypilot-calendar>
 
         <div class="window">
-            <ng-container *ngIf="selected; else nothing">
-                <div class="mb-4">
-                    <p class="mb-2"><strong>Selected Time Slot</strong></p>
-                    <p><strong>Day:</strong> {{ selected?.day }} , {{ selected?.start?.toString("d MMMM") }}</p>
-                    <p><strong>From:</strong> {{ selected?.start?.toString("h:mm tt") }} <strong>To:</strong> {{
-                        selected?.end?.toString("h:mm tt") }}</p>
-                </div>
+            <ng-container *ngIf="selected || isPast; else nothing">
 
-                <div *ngIf="!selected.showForm">
-                    <button class="btn bg-blue-600 text-white" (click)="showForm()">Create Session</button>
-                </div>
+                <ng-container *ngIf="selected && !isPast || isEventPast; else past">
+                    <div class="mb-4" *ngIf="!isEventPast">
+                        <p class="mb-2"><strong>Selected Time Slot</strong></p>
+                        <p><strong>Day:</strong> {{ selected?.day }} , {{ selected?.start?.toString("d MMMM") }}</p>
+                        <p><strong>From:</strong> {{ selected?.start?.toString("h:mm tt") }} <strong>To:</strong> {{
+                            selected?.end?.toString("h:mm tt") }}</p>
+                    </div>
 
-                <!-- <div *ngIf="selected.showForm" class="form-fields">
+                    <div *ngIf="!selected.showForm">
+                        <button class="btn bg-blue-500 text-white" (click)="showForm()">Create Session</button>
+                    </div>
+
+                    <!-- <div *ngIf="selected.showForm" class="form-fields">
                     <input type="text" placeholder="Session Name" [(ngModel)]="selected.sessionName" />
                     <textarea rows="4" placeholder="Notes" [(ngModel)]="selected.sessionNotes"></textarea>
                     <div class="mt-3 flex gap-4">
@@ -26,27 +28,64 @@
                       </div>                      
                 </div> -->
 
-                <div *ngIf="selected.showForm" class="form-fields">
-                    <input type="text" placeholder="Session Name" [(ngModel)]="selected.sessionName" />
-                    <textarea rows="4" placeholder="Notes" [(ngModel)]="selected.sessionNotes"></textarea>
+                    <div *ngIf="selected.showForm && !isEventPast;" class="form-fields">
+                        <input type="text" placeholder="Session Name" [(ngModel)]="selected.sessionName" />
+                        <textarea rows="4" placeholder="Notes" [(ngModel)]="selected.sessionNotes"></textarea>
 
-                    <div class="mt-3 flex gap-4">
-                        <button class="btn bg-blue-600 text-white" (click)="saveSession()">
-                            {{ selected.isEdit ? 'Update Session' : 'Save & Create' }}
-                        </button>
+                        <div class="mt-3 flex gap-4">
+                            <button class="btn bg-blue-500 text-white" (click)="saveSession()">
+                                {{ selected.isEdit ? 'Update Session' : 'Save & Create' }}
+                            </button>
 
-                        <button class="btn bg-gray-300 text-black" (click)="cancelSelection()">Cancel</button>
+                            <button class="btn bg-gray-300 text-black" (click)="cancelSelection()">Cancel</button>
 
-                        <button *ngIf="selected.isEdit" class="btn bg-red-600 text-white"
-                            (click)="deleteSession()">Delete Session</button>
+                            <button *ngIf="selected.isEdit" class="btn bg-red-600 text-white"
+                                (click)="deleteSession()">Delete Session</button>
+                        </div>
                     </div>
-                </div>
 
+                    <div *ngIf="isEventPast" class="mb-4">
+                        <div>
+                            <p class="text-gray-600 font-medium mb-2">Session you have selected is already passed.</p>
+                        </div>
+                        <p><strong>Session:</strong> {{ selected?.sessionName }}</p>
+                        <p *ngIf="selected.sessionNotes"><strong>Notes:</strong> {{ selected?.sessionNotes }}</p>
+                        <p><strong>Day:</strong> {{ selected?.day }} , {{ selected?.start?.toString("d MMMM") }}</p>
+                        <p><strong>From:</strong> {{ selected?.start?.toString("h:mm tt") }} <strong>To:</strong> {{
+                            selected?.end?.toString("h:mm tt") }}</p>
+                    </div>
+
+                </ng-container>
+                
             </ng-container>
+
+            <!-- <ng-template #eventData>
+                <div *ngIf="isEventPast" class="mb-4">
+                    <p><strong>Session:</strong> {{ selected.sessionName }}</p>
+                    <p *ngIf="selected.sessionNotes"><strong>Notes:</strong> {{ selected.sessionNotes }}</p>
+                </div>
+            </ng-template> -->
+
+            <ng-template #past>
+                <p>Time you have selected is already passed.</p>
+            </ng-template>
 
             <ng-template #nothing>
                 <p>Select a time slot on the calendar to start.</p>
             </ng-template>
         </div>
+    </div>
+
+    <div class="event-legend mt-6 flex flex-wrap gap-6 items-center text-sm text-gray-700">
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-green-600"></span> Registered Session
+        </div>
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-blue-500"></span> Available Session
+        </div>
+        <div class="legend-item flex items-center gap-2">
+            <span class="legend-dot bg-purple-600"></span> Owned Session
+        </div>
+        <!-- ➕ Add more as needed -->
     </div>
 </main>

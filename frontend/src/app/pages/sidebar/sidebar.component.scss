@@ -37,7 +37,7 @@
         }
   
         &.active {
-          background-color: #007bff;
+          background-color: var(--blue);
           color: white;
           font-weight: 600;
           padding-left: 2rem;

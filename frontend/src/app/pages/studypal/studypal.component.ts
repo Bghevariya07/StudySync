@@ -17,6 +17,8 @@ import { ScheduleService } from '../../services/schedule.service';
 export class StudypalComponent implements OnInit {
   user: any;
   events: any[] = [];
+  isPast: boolean;
+  isEventPast; boolean;
 
   constructor(
     private http: HttpClient,
@@ -27,12 +29,28 @@ export class StudypalComponent implements OnInit {
 
   config: DayPilot.CalendarConfig = {
     viewType: "Week",
-    onTimeRangeSelected: (args) => this.selectTime(args),
+    eventClickHandling: "Enabled",
     eventMoveHandling: "Disabled",
     eventResizeHandling: "Disabled",
-    eventClickHandling: "Enabled",
-onEventClick: (args) => this.openSessionForEdit(args),
+    timeRangeSelectedHandling: "Enabled",
+    onTimeRangeSelected: (args) => {
+      this.selectTime(args);
+      if (args.start < DayPilot.Date.today()) {
+        this.isPast = true;
+        return;
+      } else {
+        this.isPast = false;
+      }
+    },
+    onEventClick: (args) => this.openSessionForEdit(args),
+    onBeforeCellRender: (args) => {
+      if (args.cell.start < DayPilot.Date.today()) {
+        args.cell.properties.backColor = "#f3f4f6"; // soft gray column background
+      }
+    }
   };
+  
+  
 
   selected: {
     start: DayPilot.Date;
@@ -49,6 +67,8 @@ onEventClick: (args) => this.openSessionForEdit(args),
   } | null = null;
   
   openSessionForEdit(args: any) {
+    this.isPast = false;
+
     const event = args.e;
     const dayName = new Date(event.start().toString()).toLocaleDateString(undefined, { weekday: 'long' });
   
@@ -63,11 +83,29 @@ onEventClick: (args) => this.openSessionForEdit(args),
       members: event.data.members || [],
       isEdit: true
     };
+
+    const today = new Date();
+  
+    if (this.selected.start.toDate() < today) {
+      // this.isPast = true;
+      this.isEventPast = true;
+    } else {
+      this.isEventPast = false;
+    }
   }  
 
   selectTime(args: { start: DayPilot.Date, end: DayPilot.Date }) {
-    const dayName = new Date(args.start.toString()).toLocaleDateString(undefined, { weekday: 'long' });
-
+    this.isEventPast = false;
+    const selectedDate = args.start.toDate();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);  // Reset time for accurate comparison
+  
+    if (selectedDate < today) {
+      return;
+    }
+  
+    const dayName = selectedDate.toLocaleDateString(undefined, { weekday: 'long' });
+  
     this.selected = {
       start: args.start,
       end: args.end,
@@ -103,8 +141,11 @@ onEventClick: (args) => this.openSessionForEdit(args),
           end: new DayPilot.Date(schedule.timeTo),
           text: schedule.sessionName,
           note: schedule.note || '',
+          backColor: schedule.timeTo < Date.now() ? "#f3f3f3" : "#e8f1fd",
+          barColor: schedule.timeTo < Date.now() ? "#9ca3af" : "#3b82f6"
         }));
-        this.events = events;
+        this.events = events;      
+        
       },
       error: (err) => {
         console.error('Failed to load events:', err);
@@ -181,6 +222,8 @@ onEventClick: (args) => this.openSessionForEdit(args),
       this.router.navigate(['/login']);
       return;
     }
+
+    this.isPast = false;
 
     this.loadEvents(this.user.user.username);
   }
