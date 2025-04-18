@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class ChatService {
-  private api = 'http://localhost:5000/studysync/chat';
-  // private api = 'https://studysync-d5yt.onrender.com/studysync/chat';
+  // private api = 'http://localhost:5000/studysync/chat';
+  private api = 'https://studysync-d5yt.onrender.com/studysync/chat';
 
   constructor(private http: HttpClient) {}
 

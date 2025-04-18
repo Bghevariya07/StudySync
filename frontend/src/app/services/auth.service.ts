@@ -4,8 +4,8 @@ import { BehaviorSubject } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  private api = 'http://localhost:5000/studysync';
-  // private readonly api = 'https://studysync-d5yt.onrender.com/studysync';
+  // private api = 'http://localhost:5000/studysync';
+  private readonly api = 'https://studysync-d5yt.onrender.com/studysync';
 
   private currentUserSubject = new BehaviorSubject<any>(this.loadUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();
