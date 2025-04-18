@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
+import { environment } from './api';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-  // private api = 'http://localhost:5000/studysync';
-  private readonly api = 'https://studysync-d5yt.onrender.com/studysync';
+  private api = environment.apiUrl;
 
   private currentUserSubject = new BehaviorSubject<any>(this.loadUserFromStorage());
   currentUser$ = this.currentUserSubject.asObservable();

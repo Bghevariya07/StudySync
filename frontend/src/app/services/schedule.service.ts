@@ -1,11 +1,12 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from './api';
 
 @Injectable({ providedIn: 'root' })
 export class ScheduleService {
-  // private readonly BASE_URL = 'http://localhost:5000/studysync';
-  private readonly BASE_URL = 'https://studysync-d5yt.onrender.com/studysync';
+  private readonly BASE_URL = environment.apiUrl;
+  // private readonly BASE_URL = 'https://studysync-d5yt.onrender.com/studysync';
 
   private readonly SCHEDULE_API = `${this.BASE_URL}/schedule`;
   private readonly COURSE_API = `${this.BASE_URL}/courses`;

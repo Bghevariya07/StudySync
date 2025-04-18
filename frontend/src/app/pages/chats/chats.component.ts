@@ -1,14 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { ChatService } from '../../services/chat.service';
-import { NgIf, NgFor, NgClass } from '@angular/common'; // ✅ Add these
+import { NgIf, NgFor, NgClass, CommonModule } from '@angular/common'; // ✅ Add these
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // ✅ Import this
 import { HttpClient } from '@angular/common/http';
+import { SocketService } from '../../services/socket-service.service';
 
 @Component({
   selector: 'app-chats',
-  imports: [RouterModule, NgFor, NgIf, FormsModule, NgClass], // ✅ Add NgIf and NgForOf here
+  imports: [RouterModule, NgFor, NgIf, FormsModule, NgClass, CommonModule], // ✅ Add NgIf and NgForOf here
   templateUrl: './chats.component.html',
   styleUrl: './chats.component.scss',
   standalone: true
@@ -19,13 +20,16 @@ export class ChatsComponent implements OnInit {
   messages: any[] = [];
   username: string;
   newMessage: string = '';
+  lastConversations: any[] = [];
+  allUsers: string[] = [];
 
   constructor(
+    private socketService: SocketService,
     private http: HttpClient,
     private chatService: ChatService,
     private router: Router,
     private authService: AuthService
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     const user = this.authService.getUserProfile();
@@ -35,37 +39,130 @@ export class ChatsComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
-  
+
     // Ensure user is fully ready before fetching schedules
     this.loadConversations();
+
+    this.socketService.onMessage((message: any) => {
+      // Add to master list
+      this.conversations.push(message);
+    
+      // If the current conversation matches, show it live
+      if (
+        this.selectedConversation &&
+        ((message.senderId === this.selectedConversation.user && message.receiverId === this.username) ||
+        (message.senderId === this.username && message.receiverId === this.selectedConversation.user))
+      ) {
+        this.selectedConversation.conversation.push(message);
+      }
+    
+      // Refresh sidebar
+      this.lastConversations = [];
+      this.allUsers = this.findAllUsers();
+      this.allUsers.forEach(user => {
+        this.lastConversations.push(this.getLastMessageByUser(user));
+      });
+    
+      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    });
+  }
+
+  clearChat() {
+    this.allUsers = [];
+    this.lastConversations = [];
   }
 
   loadConversations() {
     this.chatService.getUserConversations(this.username).subscribe(res => {
       this.conversations = res;
-      console.log(this.conversations);
+
+      this.allUsers = this.findAllUsers();
+
+      this.allUsers.forEach(user => {
+        this.lastConversations.push(this.getLastMessageByUser(user));
+      });
+
+      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
+  }
+
+  findAllUsers(): string[] {
+    const userSet = new Set<string>();
+
+    this.conversations.forEach(msg => {
+      if (msg.senderId !== this.username) userSet.add(msg.senderId);
+      if (msg.receiverId !== this.username) userSet.add(msg.receiverId);
+    });
+
+    return Array.from(userSet);
   }
 
   selectConversation(conv: any) {
     this.selectedConversation = conv;
-    this.chatService.getMessages(conv.groupId || conv.receiverId).subscribe(res => {
-      this.messages = res;
+
+    const selectedChatConversation = [];
+
+    this.conversations.forEach(msg => {
+      if ((msg.senderId === this.username && msg.receiverId === conv.user) ||
+        (msg.senderId === conv.user && msg.receiverId === this.username)) {
+        selectedChatConversation.push(msg);
+      }
     });
+
+    this.selectedConversation.conversation = selectedChatConversation;
+  }
+
+  getLastMessageByUser(targetUser: string) {
+    let lastMessage = null;
+
+    this.conversations.forEach((msg) => {
+      if (
+        msg.type === 'UserMessage' &&
+        ((msg.senderId === this.username && msg.receiverId === targetUser) ||
+          (msg.senderId === targetUser && msg.receiverId === this.username))
+      ) {
+        if (!lastMessage || new Date(msg.time) > new Date(lastMessage.time)) {
+          lastMessage = msg;
+        }
+      }
+    });
+
+    return lastMessage
+      ? {
+        user: targetUser,
+        message: lastMessage.message,
+        time: lastMessage.time,
+        conversation: []
+      }
+      : null;
   }
 
   sendMessage() {
     if (!this.newMessage.trim()) return;
+  
     const messagePayload = {
       senderId: this.username,
-      receiverId: this.selectedConversation.groupId || this.selectedConversation.receiverId,
+      receiverId: this.selectedConversation.user,
       message: this.newMessage,
       type: this.selectedConversation.groupId ? 'GroupMessage' : 'UserMessage',
       time: new Date()
     };
+  
     this.chatService.sendMessage(messagePayload).subscribe(() => {
-      this.messages.push(messagePayload);
+      this.conversations.push(messagePayload);
+      this.selectedConversation?.conversation?.push(messagePayload);
       this.newMessage = '';
+    
+      this.socketService.sendMessage(messagePayload); // 🔁 emit real-time message
+    
+      // Update previews
+      this.lastConversations = [];
+      this.allUsers = this.findAllUsers();
+      this.allUsers.forEach(user => {
+        this.lastConversations.push(this.getLastMessageByUser(user));
+      });
+    
+      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
-  }
+  }  
 }
