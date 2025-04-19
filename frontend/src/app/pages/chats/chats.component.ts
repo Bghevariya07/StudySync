@@ -22,6 +22,7 @@ export class ChatsComponent implements OnInit {
   newMessage: string = '';
   lastConversations: any[] = [];
   allUsers: string[] = [];
+  groupChats: any[] = [];
 
   constructor(
     private socketService: SocketService,
@@ -42,34 +43,49 @@ export class ChatsComponent implements OnInit {
 
     // Ensure user is fully ready before fetching schedules
     this.loadConversations();
+    // this.loadGroupChats();
 
     this.socketService.onMessage((message: any) => {
       // Add to master list
       this.conversations.push(message);
-    
+
       // If the current conversation matches, show it live
       if (
         this.selectedConversation &&
         ((message.senderId === this.selectedConversation.user && message.receiverId === this.username) ||
-        (message.senderId === this.username && message.receiverId === this.selectedConversation.user))
+          (message.senderId === this.username && message.receiverId === this.selectedConversation.user))
       ) {
         this.selectedConversation.conversation.push(message);
       }
-    
+
       // Refresh sidebar
       this.lastConversations = [];
       this.allUsers = this.findAllUsers();
       this.allUsers.forEach(user => {
-        this.lastConversations.push(this.getLastMessageByUser(user));
+        const last = this.getLastMessageByUser(user);
+        if (last) {
+          this.lastConversations.push(last);
+        }
       });
-    
-      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+      this.lastConversations.sort(
+        (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
+      );
     });
   }
 
   clearChat() {
     this.allUsers = [];
     this.lastConversations = [];
+  }
+
+  loadGroupChats() {
+    this.chatService.getGroupChats(this.username).subscribe((groups) => {
+      this.groupChats = groups;
+
+      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+    });
+
   }
 
   loadConversations() {
@@ -84,11 +100,12 @@ export class ChatsComponent implements OnInit {
 
       this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
+    
   }
-
+  
   findAllUsers(): string[] {
     const userSet = new Set<string>();
-
+    
     this.conversations.forEach(msg => {
       if (msg.senderId !== this.username) userSet.add(msg.senderId);
       if (msg.receiverId !== this.username) userSet.add(msg.receiverId);
@@ -117,7 +134,6 @@ export class ChatsComponent implements OnInit {
 
     this.conversations.forEach((msg) => {
       if (
-        msg.type === 'UserMessage' &&
         ((msg.senderId === this.username && msg.receiverId === targetUser) ||
           (msg.senderId === targetUser && msg.receiverId === this.username))
       ) {
@@ -139,7 +155,7 @@ export class ChatsComponent implements OnInit {
 
   sendMessage() {
     if (!this.newMessage.trim()) return;
-  
+
     const messagePayload = {
       senderId: this.username,
       receiverId: this.selectedConversation.user,
@@ -147,22 +163,31 @@ export class ChatsComponent implements OnInit {
       type: this.selectedConversation.groupId ? 'GroupMessage' : 'UserMessage',
       time: new Date()
     };
-  
+
+    // console.log(messagePayload)
+
     this.chatService.sendMessage(messagePayload).subscribe(() => {
       this.conversations.push(messagePayload);
       this.selectedConversation?.conversation?.push(messagePayload);
       this.newMessage = '';
-    
+
       this.socketService.sendMessage(messagePayload); // 🔁 emit real-time message
-    
+      
       // Update previews
       this.lastConversations = [];
       this.allUsers = this.findAllUsers();
+
+      // console.log(this.allUsers);
       this.allUsers.forEach(user => {
-        this.lastConversations.push(this.getLastMessageByUser(user));
+        const last = this.getLastMessageByUser(user);
+        if (last) {
+          this.lastConversations.push(last);
+        }
       });
-    
-      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
+
+      this.lastConversations = this.lastConversations
+        .filter(c => !!c)  // remove nulls just in case
+        .sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
-  }  
+  }
 }

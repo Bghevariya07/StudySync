@@ -6,6 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ScheduleService } from '../../services/schedule.service';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-studypal',
@@ -24,7 +25,8 @@ export class StudypalComponent implements OnInit {
     private http: HttpClient,
     private authService: AuthService,
     private router: Router,
-    private scheduleService: ScheduleService
+    private scheduleService: ScheduleService,
+    private chatService: ChatService
   ) { }
 
   config: DayPilot.CalendarConfig = {
@@ -188,6 +190,20 @@ export class StudypalComponent implements OnInit {
             this.loadEvents(this.user.user.username);
           },
           error: err => console.error('Creation failed:', err)
+        });
+
+        const chatPayload = {
+          groupId: sessionId,
+          users: [this.user.user.username]
+        };
+
+        this.chatService.createGroupChat(chatPayload).subscribe({
+          next: (res) => {
+            console.log('Group chat created:', res);
+          },
+          error: (err) => {
+            console.error('Failed to create group chat:', err);
+          }
         });
       }
     }

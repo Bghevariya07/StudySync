@@ -7,6 +7,7 @@ import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
 import { ScheduleService } from '../../services/schedule.service';
 import { NgSelectModule } from '@ng-select/ng-select';
+import { ChatService } from '../../services/chat.service';
 
 @Component({
   selector: 'app-schedule',
@@ -26,6 +27,7 @@ export class ScheduleComponent implements OnInit {
   isEventPast; boolean;
 
   constructor(
+    private chatService: ChatService,
     private http: HttpClient,
     private authService: AuthService,
     private router: Router,
@@ -139,11 +141,32 @@ export class ScheduleComponent implements OnInit {
 
     this.scheduleService.signupForSession(sessionId, username).subscribe({
       next: () => {
+        this.chatService.addUserToGroupChat(sessionId, username).subscribe({
+          next: () => {
+          },
+          error: err => console.error('Groupchat adding failed:', err)
+        });
+
+        const tempMessage = {
+          senderId: username,
+          receiverId: sessionId,
+          message: username + " has been added",
+          type: "GroupMessage",
+          time: new Date(),
+        }
+
+        this.chatService.sendMessage(tempMessage).subscribe({
+          next: () => {
+          },
+          error: err => console.error('Groupchat adding failed:', err)
+        });
+
         this.isUserSignedUp = true;
         this.loadEvents();
       },
       error: err => console.error('Signup failed:', err)
     });
+
   }
 
   cancelSignup() {
@@ -154,6 +177,26 @@ export class ScheduleComponent implements OnInit {
 
     this.scheduleService.cancelSignup(sessionId, username).subscribe({
       next: () => {
+        this.chatService.removeUserFromGroupChat(sessionId, username).subscribe({
+          next: () => {
+          },
+          error: err => console.error('Groupchat removing failed:', err)
+        });
+
+        const tempMessage = {
+          senderId: username,
+          receiverId: sessionId,
+          message: username + " has been removed",
+          type: "GroupMessage",
+          time: new Date(),
+        }
+
+        this.chatService.sendMessage(tempMessage).subscribe({
+          next: () => {
+          },
+          error: err => console.error('Groupchat adding failed:', err)
+        });
+
         this.isUserSignedUp = false;
         this.selectedEvent = null;
         this.loadEvents();
