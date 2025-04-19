@@ -6,6 +6,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms'; // ✅ Import this
 import { HttpClient } from '@angular/common/http';
 import { SocketService } from '../../services/socket-service.service';
+import { ScheduleService } from '../../services/schedule.service';
 
 @Component({
   selector: 'app-chats',
@@ -23,9 +24,11 @@ export class ChatsComponent implements OnInit {
   lastConversations: any[] = [];
   allUsers: string[] = [];
   groupChats: any[] = [];
+  userSessions: any[] = [];
 
   constructor(
     private socketService: SocketService,
+    private scheduleService: ScheduleService,
     private http: HttpClient,
     private chatService: ChatService,
     private router: Router,
@@ -43,7 +46,6 @@ export class ChatsComponent implements OnInit {
 
     // Ensure user is fully ready before fetching schedules
     this.loadConversations();
-    // this.loadGroupChats();
 
     this.socketService.onMessage((message: any) => {
       // Add to master list
@@ -79,15 +81,6 @@ export class ChatsComponent implements OnInit {
     this.lastConversations = [];
   }
 
-  loadGroupChats() {
-    this.chatService.getGroupChats(this.username).subscribe((groups) => {
-      this.groupChats = groups;
-
-      this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
-    });
-
-  }
-
   loadConversations() {
     this.chatService.getUserConversations(this.username).subscribe(res => {
       this.conversations = res;
@@ -101,6 +94,9 @@ export class ChatsComponent implements OnInit {
       this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
     
+    this.scheduleService.getSchedulesByUser(this.username).subscribe(res => {
+      this.userSessions = res;
+    });
   }
   
   findAllUsers(): string[] {
@@ -128,6 +124,11 @@ export class ChatsComponent implements OnInit {
 
     this.selectedConversation.conversation = selectedChatConversation;
   }
+
+  findSessionName(groupId: string): string {
+    const session = this.userSessions.find(s => s.sessionId === groupId);
+    return session ? session.sessionName : groupId;
+  }  
 
   getLastMessageByUser(targetUser: string) {
     let lastMessage = null;

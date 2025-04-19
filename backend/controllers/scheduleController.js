@@ -2,7 +2,7 @@ const Schedule = require('../models/Schedule');
 const mongoose = require('mongoose');
 
 const addSchedule = async (req, res) => {
-  const {sessionId, timeFrom, timeTo, courseId, sessionName, note, members } = req.body;
+  const { sessionId, timeFrom, timeTo, courseId, sessionName, note, members } = req.body;
 
   if (!sessionId || !timeFrom || !timeTo || !courseId || !sessionName) {
     return res.status(400).json({ error: 'All required fields must be provided' });
@@ -76,7 +76,10 @@ const getSchedulesByUsername = async (req, res) => {
 
   try {
     const schedules = await Schedule.find({
-      sessionId: { $regex: new RegExp(`-${username}-`) }
+      $or: [
+        { sessionId: { $regex: new RegExp(`-${username}-`) } },
+        { members : username },
+      ]
     });
 
     res.json(schedules);

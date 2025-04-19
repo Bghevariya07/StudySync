@@ -1,8 +1,9 @@
 <main class="flex mt-4 shadow rounded-3xl">
     <!-- Sidebar -->
-    <div class="w-1/3 border-r overflow-y-auto bg-white rounded-l-3xl">
-        <h2 class="text-xl bg-white font-semibold rounded-tl-3xl px-4 py-3">Conversations</h2>
-        <div *ngFor="let conv of lastConversations"
+    <div class="w-1/3 border-r bg-white rounded-l-3xl flex flex-col">
+        <h2 class="text-xl bg-white font-semibold rounded-tl-3xl px-4 py-3 border-b">Conversations</h2>
+        <div class="overflow-y-auto overflow-hidden">
+            <div *ngFor="let conv of lastConversations"
             class="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
             [class.bg-blue-100]="selectedConversation?.user === conv.user" (click)="selectConversation(conv)">
 
@@ -15,7 +16,7 @@
 
                 <div>
                     <div class="font-semibold text-sm">
-                        {{ conv.user }}
+                        {{ findSessionName(conv.user) }}
                     </div>
                     <div class="text-sm text-gray-500 truncate max-w-[180px]">
                         {{ conv.message }}
@@ -29,22 +30,30 @@
             </div>
         </div>
 
+        </div>
     </div>
 
     <!-- Chat Window -->
-    <div class="w-2/3 flex flex-col">
+    <div class="w-2/3 flex flex-col rounded-tr-3xl">
         <!-- Header -->
-        <div *ngIf="selectedConversation"
+        <div *ngIf="selectedConversation; else notSelected"
             class="flex gap-2 items-center bg-gray-300 p-3 py-4 rounded-tr-3xl font-semibold">
             <div
                 class="w-10 h-10 rounded-full bg-gray-500 text-white flex items-center justify-center font-bold text-sm">
                 {{ selectedConversation.user[0].toUpperCase() }}
             </div>
-            {{ "@" + selectedConversation.user }}
+            {{ findSessionName(selectedConversation.user) }}
         </div>
 
+        <ng-template #notSelected>
+            <div class="bg-gray-200 flex size-full rounded-tr-3xl items-center justify-center my-auto">
+                
+                Select a chat to send a message.
+            </div>
+        </ng-template>
+
         <!-- Outer container with fixed height -->
-        <div class="flex-1 h-full overflow-hidden flex flex-col bg-gray-200">
+        <div class="flex-1 h-full overflow-hidden flex flex-col bg-gray-200" [class.rounded-tr-3xl]="!selectedConversation">
 
             <!-- Messages List -->
             <div class="flex-1 overflow-y-auto flex flex-col-reverse gap-2 px-4 py-2">
@@ -78,7 +87,7 @@
 
 
         <!-- Input -->
-        <div class="flex pt-4 pb-2 bg-gray-200 px-4 gap-2 rounded-br-3xl">
+        <div *ngIf="selectedConversation" class="flex pt-4 pb-2 bg-gray-200 px-4 gap-2 rounded-br-3xl">
             <input [(ngModel)]="newMessage" (keydown.enter)="sendMessage()" placeholder="Write a message"
                 class="flex-1 border py-3 px-4 rounded-3xl" />
             <button (click)="sendMessage()" class="bg-[var(--blue)] text-white p-2 px-3 rounded-3xl">
