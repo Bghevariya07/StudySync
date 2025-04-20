@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DayPilot, DayPilotModule } from "@daypilot/daypilot-lite-angular";
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
@@ -12,7 +12,7 @@ import { ChatService } from '../../services/chat.service';
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [DayPilotModule, NgIf, FormsModule, NgSelectModule],
+  imports: [DayPilotModule, NgIf, NgFor, FormsModule, NgSelectModule],
   templateUrl: './schedule.component.html',
   styleUrl: './schedule.component.scss'
 })
@@ -23,8 +23,10 @@ export class ScheduleComponent implements OnInit {
   isUserSignedUp: boolean = false;
   isUserOwner: boolean = false;
   courses: any[] = [];
-  selectedCourseId: string = '';
+  selectedCourse: any = null;
   isEventPast; boolean;
+  searchQuery: string = '';
+  filteredOptions: any[] = [...this.courses];
 
   constructor(
     private chatService: ChatService,
@@ -36,6 +38,7 @@ export class ScheduleComponent implements OnInit {
 
   config: DayPilot.CalendarConfig = {
     viewType: "Week",
+    weekStarts: DayPilot.Date.today().dayOfWeek(),
     eventClickHandling: "Enabled",
     onEventClick: (args) => this.selectEvent(args),
     eventMoveHandling: "Disabled",
@@ -54,17 +57,24 @@ export class ScheduleComponent implements OnInit {
       this.router.navigate(['/login']);
       return;
     }
+
     this.loadEvents();
+    this.fetchCourses();
   }
 
   fetchCourses() {
     this.scheduleService.getAllCourses().subscribe({
       next: (res) => {
-        this.courses = res;
+        const courseList = res;
         if (this.courses.length > 0) {
-          this.selectedCourseId = this.courses[0].courseId;
+          this.selectedCourse = this.courses[0];
           this.loadEvents();
         }
+
+        this.courses = courseList.map(course => ({
+          ...course,
+          displayName: `${course.courseId}: ${course.coursename}`
+        }));
       },
       error: (err) => console.error('Failed to load courses:', err)
     });
@@ -73,13 +83,13 @@ export class ScheduleComponent implements OnInit {
   loadEvents() {
     const today = new Date();
     const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+    startOfWeek.setDate(today.getDate()); // Sunday
     const username = this.user.user.username;
+
+    startOfWeek.setHours(0,0,0,0);
 
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 7); // Next Sunday
-
-    this.fetchCourses();
 
     this.scheduleService.getSchedulesForWeek(startOfWeek.getTime(), endOfWeek.getTime()).subscribe({
       next: (schedules) => {
@@ -87,7 +97,7 @@ export class ScheduleComponent implements OnInit {
           const isMember = schedule.members?.includes(username) && !schedule.sessionId?.includes(username);
           const isOwner = schedule.sessionId?.includes(username);
           const isPast = schedule.timeFrom < new Date();
-  
+
           return {
             id: schedule.sessionId,
             start: new DayPilot.Date(schedule.timeFrom),
@@ -101,6 +111,12 @@ export class ScheduleComponent implements OnInit {
             backColor: isPast ? "#f3f3f3" : isMember ? "#e6f4ea" : isOwner ? "#F3E8FF" : "#e8f1fd"
           };
         });
+
+        if (this.selectedCourse) {
+          this.events = this.events.filter(event =>
+            String(event.courseId) === String(this.selectedCourse.courseId)
+          );
+        }
       },
       error: err => console.error('Failed to load weekly events:', err)
     });
@@ -108,7 +124,7 @@ export class ScheduleComponent implements OnInit {
 
   selectEvent(args: any) {
     const e = args.e;
-  
+
     this.selectedEvent = {
       id: e.id(),
       start: e.start(),
@@ -126,12 +142,30 @@ export class ScheduleComponent implements OnInit {
     } else {
       this.isEventPast = false;
     }
-  
+
     const username = this.user.user.username;
     this.isUserSignedUp = this.selectedEvent.members.includes(username);
     this.isUserOwner = this.selectedEvent.id.includes(username);
   }
-  
+
+  filterOptions(): void {
+    const query = this.searchQuery.toLowerCase().trim();
+    this.filteredOptions = this.courses.filter(option =>
+      option.displayName.toLowerCase().includes(query)
+    );
+  }
+
+  selectOption(option: any): void {
+    this.searchQuery = option.displayName;
+    this.selectedCourse = option;
+    this.filteredOptions = [];
+    
+    this.loadEvents();
+    
+    this.events = this.events.filter(event =>
+      String(event.courseId) === String(this.selectedCourse.courseId)
+    );
+  }
 
   signupForSession() {
     if (!this.selectedEvent || !this.user) return;

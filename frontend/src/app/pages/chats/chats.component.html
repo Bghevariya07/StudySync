@@ -84,14 +84,12 @@
             </div>
         </div>
 
-
-
         <!-- Input -->
         <div *ngIf="selectedConversation" class="flex pt-4 pb-2 bg-gray-200 px-4 gap-2 rounded-br-3xl">
             <input [(ngModel)]="newMessage" (keydown.enter)="sendMessage()" placeholder="Write a message"
                 class="flex-1 border py-3 px-4 rounded-3xl" />
             <button (click)="sendMessage()" class="bg-[var(--blue)] text-white p-2 px-3 rounded-3xl">
-                <img class="h-6" src="./assets/send-icon.png" alt="">
+                <img class="h-6" src="./assets/send-icon.png" alt="send-icon">
             </button>
         </div>
     </div>

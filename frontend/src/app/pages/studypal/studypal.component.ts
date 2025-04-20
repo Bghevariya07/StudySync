@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DayPilot, DayPilotModule } from "@daypilot/daypilot-lite-angular";
-import { NgIf } from '@angular/common';
+import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../services/auth.service';
@@ -11,7 +11,7 @@ import { ChatService } from '../../services/chat.service';
 @Component({
   selector: 'app-studypal',
   standalone: true,
-  imports: [DayPilotModule, NgIf, FormsModule],
+  imports: [DayPilotModule, NgIf, FormsModule, NgFor],
   templateUrl: './studypal.component.html',
   styleUrl: './studypal.component.scss'
 })
@@ -20,6 +20,10 @@ export class StudypalComponent implements OnInit {
   events: any[] = [];
   isPast: boolean;
   isEventPast; boolean;
+  searchQuery: string = '';
+  courses: any[] = [];
+  filteredOptions: any[] = [...this.courses];
+  selectedCourse: any = null;
 
   constructor(
     private http: HttpClient,
@@ -31,10 +35,12 @@ export class StudypalComponent implements OnInit {
 
   config: DayPilot.CalendarConfig = {
     viewType: "Week",
+    weekStarts: DayPilot.Date.today().dayOfWeek(),
     eventClickHandling: "Enabled",
     eventMoveHandling: "Disabled",
     eventResizeHandling: "Disabled",
     timeRangeSelectedHandling: "Enabled",
+
     onTimeRangeSelected: (args) => {
       this.selectTime(args);
       if (args.start < DayPilot.Date.today()) {
@@ -44,13 +50,16 @@ export class StudypalComponent implements OnInit {
         this.isPast = false;
       }
     },
+
     onEventClick: (args) => this.openSessionForEdit(args),
+
     onBeforeCellRender: (args) => {
-      if (args.cell.start < DayPilot.Date.now()) {
-        args.cell.properties.backColor = "#f3f4f6"; // soft gray column background
+      if (args.cell.start < DayPilot.Date.today()) {
+        args.cell.properties.backColor = "#f3f4f6";
       }
     }
   };
+
 
   selected: {
     start: DayPilot.Date;
@@ -132,11 +141,14 @@ export class StudypalComponent implements OnInit {
     return `${courseId}-${username}-${startTime}-${endTime}`;
   }
 
-  loadEvents(username: string) {
+  loadEvents() {
+    const username = this.user.user.username;
+
     this.scheduleService.getSchedulesByUser(username).subscribe({
       next: (schedules) => {
         const events = schedules.map(schedule => ({
           id: schedule.sessionId,
+          courseId: schedule.courseId,
           start: new DayPilot.Date(schedule.timeFrom),
           end: new DayPilot.Date(schedule.timeTo),
           text: schedule.courseId + " \n" + schedule.sessionName,
@@ -146,10 +158,32 @@ export class StudypalComponent implements OnInit {
         }));
         this.events = events;
 
+        if (this.selectedCourse) {
+          this.events = this.events.filter(event =>
+            String(event.courseId) === String(this.selectedCourse.courseId)
+          );
+        }
       },
       error: (err) => {
         console.error('Failed to load events:', err);
       }
+    });
+  }
+
+  fetchCourses() {
+    this.scheduleService.getAllCourses().subscribe({
+      next: (res) => {
+        const courseList = res;
+        if (this.courses.length > 0) {
+          this.selectedCourse = this.courses[0];
+        }
+
+        this.courses = courseList.map(course => ({
+          ...course,
+          displayName: `${course.courseId}: ${course.coursename}`
+        }));
+      },
+      error: (err) => console.error('Failed to load courses:', err)
     });
   }
 
@@ -165,7 +199,7 @@ export class StudypalComponent implements OnInit {
       const payload = {
         sessionName: this.selected.sessionName,
         note: this.selected.sessionNotes,
-        courseId: 'CSCI4177', // Replace later if dynamic
+        courseId: this.selectedCourse.courseId,
         timeFrom: startDate.getTime(),
         timeTo: endDate.getTime()
       };
@@ -175,7 +209,7 @@ export class StudypalComponent implements OnInit {
         this.scheduleService.updateSchedule(this.selected.sessionId, payload).subscribe({
           next: () => {
             this.selected = null;
-            this.loadEvents(this.user.user.username);
+            this.loadEvents();
           },
           error: err => console.error('Update failed:', err)
         });
@@ -187,7 +221,7 @@ export class StudypalComponent implements OnInit {
         this.scheduleService.addSchedule(fullPayload).subscribe({
           next: () => {
             this.selected = null;
-            this.loadEvents(this.user.user.username);
+            this.loadEvents();
           },
           error: err => console.error('Creation failed:', err)
         });
@@ -220,12 +254,32 @@ export class StudypalComponent implements OnInit {
         this.scheduleService.deleteSchedule(this.selected.sessionId).subscribe({
           next: () => {
             this.selected = null;
-            this.loadEvents(this.user.user.username);
+            this.loadEvents();
           },
           error: err => console.error('Delete failed:', err)
         });
       }
     }
+  }
+
+  filterOptions(): void {
+
+    const query = this.searchQuery.toLowerCase().trim();
+    this.filteredOptions = this.courses.filter(option =>
+      option.displayName.toLowerCase().includes(query)
+    );
+  }
+
+  selectOption(option: any): void {
+    this.searchQuery = option.displayName;
+    this.selectedCourse = option;
+    this.filteredOptions = [];
+    
+    this.loadEvents();
+    
+    this.events = this.events.filter(event =>
+      String(event.courseId) === String(this.selectedCourse.courseId)
+    );
   }
 
   ngOnInit(): void {
@@ -238,6 +292,7 @@ export class StudypalComponent implements OnInit {
     this.isPast = false;
     this.isEventPast = false;
 
-    this.loadEvents(this.user.user.username);
+    this.loadEvents();
+    this.fetchCourses();
   }
 }
