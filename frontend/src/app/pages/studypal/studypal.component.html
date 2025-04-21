@@ -59,7 +59,7 @@
                     </div>
 
                     <ng-template #courseNotSelected>
-                        <div *ngIf="isOwner">
+                        <div *ngIf="isOwner && !isEventPast && !selected.isEdit && !selectedCourse">
                             <p class="text-red-600 font-medium mt-4">Select a course to create session.</p>
                         </div>
                     </ng-template>

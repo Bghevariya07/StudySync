@@ -10,8 +10,9 @@
 
   <div class="nav-right">
     <ng-container *ngIf="isLoggedIn(); else guestLinks">
-      <div class="profile-icon">
-        <img src="./assets/avatar.png" alt="Profile icon" />
+      <div class="profile-icon flex items-center gap-2">
+        <img src="./assets/profile-icon-1.png" alt="Profile icon" />
+        <p>{{ user.user.firstname + " " + user.user.lastname }}</p>
       </div>
       <button (click)="logout()" class="btn-logout">Logout</button>
     </ng-container>
