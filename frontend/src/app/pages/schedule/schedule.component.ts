@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { DayPilot, DayPilotModule } from "@daypilot/daypilot-lite-angular";
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,6 +17,17 @@ import { ChatService } from '../../services/chat.service';
   styleUrl: './schedule.component.scss'
 })
 export class ScheduleComponent implements OnInit {
+  @ViewChild('sessionPanel') sessionPanelRef: ElementRef | undefined;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const clickedInside = this.sessionPanelRef?.nativeElement.contains(event.target);
+    if (!clickedInside && this.selectedEvent && !this.isEventPast) {
+      this.selectedEvent = null;
+      this.isUserOwner = false;
+    }
+  }  
+
   user: any;
   events: any[] = [];
   selectedEvent: any = null;
@@ -86,7 +97,7 @@ export class ScheduleComponent implements OnInit {
     startOfWeek.setDate(today.getDate()); // Sunday
     const username = this.user.user.username;
 
-    startOfWeek.setHours(0,0,0,0);
+    startOfWeek.setHours(0, 0, 0, 0);
 
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(startOfWeek.getDate() + 7); // Next Sunday
@@ -159,9 +170,9 @@ export class ScheduleComponent implements OnInit {
     this.searchQuery = option.displayName;
     this.selectedCourse = option;
     this.filteredOptions = [];
-    
+
     this.loadEvents();
-    
+
     this.events = this.events.filter(event =>
       String(event.courseId) === String(this.selectedCourse.courseId)
     );

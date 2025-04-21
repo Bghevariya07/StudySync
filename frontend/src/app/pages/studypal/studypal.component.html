@@ -6,20 +6,20 @@
 
         <div class="relative w-96">
             <input type="text" [(ngModel)]="searchQuery" (input)="filterOptions()" placeholder="Search..."
-            (click)="searchQuery = ''"
-            class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+                (click)="searchQuery = ''"
+                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
 
-        <ul *ngIf="filteredOptions.length > 0"
-            class="absolute z-10 bg-white border border-gray-300 mt-1 rounded-md shadow-md max-h-48 overflow-y-auto">
-            <li *ngFor="let option of filteredOptions" class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                (click)="selectOption(option)">
-                {{ option.displayName }}
-            </li>
-        </ul>
+            <ul *ngIf="filteredOptions.length > 0"
+                class="absolute z-10 bg-white border border-gray-300 mt-1 rounded-md shadow-md max-h-48 overflow-y-auto">
+                <li *ngFor="let option of filteredOptions" class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                    (click)="selectOption(option)">
+                    {{ option.displayName }}
+                </li>
+            </ul>
         </div>
     </div>
 
-    <div class="cal-window">
+    <div class="cal-window" #sessionPanel>
 
         <daypilot-calendar [config]="config" [events]="events" class="calendar"></daypilot-calendar>
 
@@ -34,7 +34,7 @@
                             selected?.end?.toString("h:mm tt") }}</p>
                     </div>
 
-                    <div *ngIf="!selected.showForm && isOwner">
+                    <div *ngIf="!selected.showForm && isOwner && selectedCourse; else courseNotSelected">
                         <button class="btn bg-blue-500 text-white" (click)="showForm()">Create Session</button>
                     </div>
 
@@ -57,6 +57,12 @@
                                 (click)="deleteSession()">Delete Session</button>
                         </div>
                     </div>
+
+                    <ng-template #courseNotSelected>
+                        <div *ngIf="isOwner">
+                            <p class="text-red-600 font-medium mt-4">Select a course to create session.</p>
+                        </div>
+                    </ng-template>
 
                     <div *ngIf="isEventPast" class="mb-4">
                         <p><strong>Session:</strong> {{ selected?.sessionName }}</p>
