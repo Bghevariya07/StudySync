@@ -24,6 +24,7 @@ export class StudypalComponent implements OnInit {
   courses: any[] = [];
   filteredOptions: any[] = [...this.courses];
   selectedCourse: any = null;
+  isOwner: boolean = false;
 
   constructor(
     private http: HttpClient,
@@ -43,7 +44,8 @@ export class StudypalComponent implements OnInit {
 
     onTimeRangeSelected: (args) => {
       this.selectTime(args);
-      if (args.start < DayPilot.Date.today()) {
+      this.isOwner = true;
+      if (args.start < DayPilot.Date.now()) {
         this.isPast = true;
         return;
       } else {
@@ -71,6 +73,7 @@ export class StudypalComponent implements OnInit {
     sessionId?: string;
     members?: string[];
     isEdit?: boolean;
+    isOwner?: boolean;
     timeFrom?: Date;
     timeTo?: Date;
   } | null = null;
@@ -85,13 +88,15 @@ export class StudypalComponent implements OnInit {
       start: event.start(),
       end: event.end(),
       day: dayName,
-      showForm: true,
+      showForm: event.data.id.includes(this.user.user.username),
       sessionName: event.data.text,
       sessionNotes: event.data.note || '',
       sessionId: event.data.id,
       members: event.data.members || [],
-      isEdit: true
+      isEdit: true,
     };
+
+    this.isOwner = event.data.id.includes(this.user.user.username);
 
     const today = new Date();
 
@@ -142,9 +147,16 @@ export class StudypalComponent implements OnInit {
   }
 
   loadEvents() {
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate());
     const username = this.user.user.username;
 
-    this.scheduleService.getSchedulesByUser(username).subscribe({
+    startOfWeek.setHours(0,0,0,0);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 7);
+
+    this.scheduleService.getSchedulesForWeek(startOfWeek.getTime(), endOfWeek.getTime()).subscribe({
       next: (schedules) => {
         const events = schedules.map(schedule => ({
           id: schedule.sessionId,
@@ -153,8 +165,8 @@ export class StudypalComponent implements OnInit {
           end: new DayPilot.Date(schedule.timeTo),
           text: schedule.courseId + " \n" + schedule.sessionName,
           note: schedule.note || '',
-          backColor: schedule.timeTo < Date.now() ? "#f3f3f3" : "#e8f1fd",
-          barColor: schedule.timeTo < Date.now() ? "#9ca3af" : "#3b82f6"
+          backColor: schedule.timeTo < Date.now() ? "#f3f3f3" : !schedule.sessionId.includes(username) ? "#D1EEF3" : "#e8f1fd",
+          barColor: schedule.timeTo < Date.now() ? "#9ca3af" : !schedule.sessionId.includes(username) ? "#45B3C6" : "#3b82f6"
         }));
         this.events = events;
 
