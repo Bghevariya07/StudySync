@@ -17,17 +17,6 @@ import { ChatService } from '../../services/chat.service';
   styleUrl: './schedule.component.scss'
 })
 export class ScheduleComponent implements OnInit {
-  @ViewChild('sessionPanel') sessionPanelRef: ElementRef | undefined;
-
-  @HostListener('document:click', ['$event'])
-  onDocumentClick(event: MouseEvent): void {
-    const clickedInside = this.sessionPanelRef?.nativeElement.contains(event.target);
-    if (!clickedInside && this.selectedEvent && !this.isEventPast) {
-      this.selectedEvent = null;
-      this.isUserOwner = false;
-    }
-  }  
-
   user: any;
   events: any[] = [];
   selectedEvent: any = null;
@@ -38,6 +27,31 @@ export class ScheduleComponent implements OnInit {
   isEventPast; boolean;
   searchQuery: string = '';
   filteredOptions: any[] = [...this.courses];
+
+  @ViewChild('sessionPanel') sessionPanelRef: ElementRef | undefined;
+  @ViewChild('searchBar') searchBarRef: ElementRef | undefined;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const clickedInside = this.sessionPanelRef?.nativeElement.contains(event.target);
+    if (!clickedInside && this.selectedEvent && !this.isEventPast) {
+      this.selectedEvent = null;
+      this.isUserOwner = false;
+
+    }
+    
+    const insideSearchBar = this.searchBarRef?.nativeElement.contains(event.target);
+
+    if (!insideSearchBar && (this.searchQuery === '' || this.selectedCourse === null || this.filteredOptions.length !== 0)) {
+      this.filteredOptions = [];
+      this.searchQuery = '';
+      this.selectedCourse = null;
+      this.loadEvents();
+    } else if (!this.selectedCourse) {
+      this.filteredOptions = this.courses;
+      this.loadEvents();
+    }
+  }
 
   constructor(
     private chatService: ChatService,
@@ -160,10 +174,14 @@ export class ScheduleComponent implements OnInit {
   }
 
   filterOptions(): void {
-    const query = this.searchQuery.toLowerCase().trim();
-    this.filteredOptions = this.courses.filter(option =>
-      option.displayName.toLowerCase().includes(query)
-    );
+    if (this.searchQuery === '') {
+      this.filteredOptions = this.courses;
+    } else {
+      const query = this.searchQuery.toLowerCase().trim();
+      this.filteredOptions = this.courses.filter(option =>
+        option.displayName.toLowerCase().includes(query)
+      );
+    }
   }
 
   selectOption(option: any): void {

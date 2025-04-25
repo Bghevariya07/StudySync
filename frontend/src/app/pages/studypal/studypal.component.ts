@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
-import { DayPilot, DayPilotModule } from "@daypilot/daypilot-lite-angular";
+import { DayPilot, DayPilotCalendarComponent, DayPilotModule } from "@daypilot/daypilot-lite-angular";
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -18,12 +18,26 @@ import { ChatService } from '../../services/chat.service';
 export class StudypalComponent implements OnInit {
 
   @ViewChild('sessionPanel') sessionPanelRef: ElementRef | undefined;
+  @ViewChild('studypalCalendar') dpCalendar: DayPilotCalendarComponent;
+  @ViewChild('searchBar') searchBarRef: ElementRef | undefined;
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: MouseEvent): void {
     const clickedInside = this.sessionPanelRef?.nativeElement.contains(event.target);
     if (!clickedInside && this.selected && !this.isPast) {
       this.cancelSelection();
+    }
+
+    const insideSearchBar = this.searchBarRef?.nativeElement.contains(event.target);
+
+    if (!insideSearchBar && (this.searchQuery === '' || this.selectedCourse === null || this.filteredOptions.length !== 0)) {
+      this.filteredOptions = [];
+      this.searchQuery = '';
+      this.selectedCourse = null;
+      this.loadEvents();
+    } else if (!this.selectedCourse) {
+      this.filteredOptions = this.courses;
+      this.loadEvents();
     }
   }
 
@@ -149,6 +163,9 @@ export class StudypalComponent implements OnInit {
 
   cancelSelection() {
     this.selected = null;
+    if (this.dpCalendar && this.dpCalendar.control) {
+      this.dpCalendar.control.clearSelection();
+    }
   }
 
   createSessionId(courseId: string, date: Date, username: string): string {
@@ -220,9 +237,9 @@ export class StudypalComponent implements OnInit {
         : new Date(this.selected.end);
 
       const payload = {
-        sessionName: this.selected.sessionName,
+        sessionName: !this.selected.sessionId ? this.selected.sessionName : this.selected.sessionName.split('\n')[1]?.trim(),
         note: this.selected.sessionNotes,
-        courseId: this.selectedCourse.courseId,
+        courseId: this.selectedCourse !== null ? this.selectedCourse.courseId : this.selected.sessionId.split("-")[0],
         timeFrom: startDate.getTime(),
         timeTo: endDate.getTime()
       };
@@ -256,7 +273,6 @@ export class StudypalComponent implements OnInit {
 
         this.chatService.createGroupChat(chatPayload).subscribe({
           next: (res) => {
-            console.log('Group chat created:', res);
           },
           error: (err) => {
             console.error('Failed to create group chat:', err);
@@ -286,11 +302,14 @@ export class StudypalComponent implements OnInit {
   }
 
   filterOptions(): void {
-
-    const query = this.searchQuery.toLowerCase().trim();
-    this.filteredOptions = this.courses.filter(option =>
-      option.displayName.toLowerCase().includes(query)
-    );
+    if (this.searchQuery === '') {
+      this.filteredOptions = this.courses;
+    } else {
+      const query = this.searchQuery.toLowerCase().trim();
+      this.filteredOptions = this.courses.filter(option =>
+        option.displayName.toLowerCase().includes(query)
+      );
+    }
   }
 
   selectOption(option: any): void {

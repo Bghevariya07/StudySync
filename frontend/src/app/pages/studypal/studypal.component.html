@@ -1,27 +1,31 @@
 <main class="main-div">
     <h2 class="font-bold text-2xl mb-8">Create a New Session</h2>
 
-    <div class="relative mb-8 flex gap-4 w-fit h-full justify-center">
-        <h3 class=" text-lg  my-auto">Select a Course:</h3>
+    <div class="flex gap-24">
+        <div class="relative mb-8 flex gap-4 w-full h-full flex-[4]">
+            <h3 class="block text-lg  my-auto block text-nowrap">Select a Course:</h3>
 
-        <div class="relative w-96">
-            <input type="text" [(ngModel)]="searchQuery" (input)="filterOptions()" placeholder="Search..."
-                (click)="searchQuery = ''"
-                class="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+            <div class="relative w-full flex-3" #searchBar>
+                <input type="text" [(ngModel)]="searchQuery" (input)="filterOptions()"
+                    placeholder="Enter course code/name..." (click)="searchQuery = ''; filterOptions()"
+                    class="px-4 py-2 w-full border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
 
-            <ul *ngIf="filteredOptions.length > 0"
-                class="absolute z-10 bg-white border border-gray-300 mt-1 rounded-md shadow-md max-h-48 overflow-y-auto">
-                <li *ngFor="let option of filteredOptions" class="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                    (click)="selectOption(option)">
-                    {{ option.displayName }}
-                </li>
-            </ul>
+                <ul *ngIf="filteredOptions.length > 0"
+                    class="absolute z-10 bg-white border border-gray-300 mt-1 rounded-md shadow-md max-h-48 w-full overflow-y-auto">
+                    <li *ngFor="let option of filteredOptions" class="px-4 py-2 hover:bg-blue-200 cursor-pointer"
+                        (click)="selectOption(option)">
+                        {{ option.displayName }}
+                    </li>
+                </ul>
+            </div>
         </div>
+
+        <div class="flex-1"></div>
     </div>
 
     <div class="cal-window" #sessionPanel>
 
-        <daypilot-calendar [config]="config" [events]="events" class="calendar"></daypilot-calendar>
+        <daypilot-calendar [config]="config" [events]="events" class="calendar" #studypalCalendar></daypilot-calendar>
 
         <div class="window">
             <ng-container *ngIf="selected || isPast; else nothing">
