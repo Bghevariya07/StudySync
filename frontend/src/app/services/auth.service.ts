@@ -16,6 +16,10 @@ export class AuthService {
     return this.http.post(`${this.api}/login`, credentials);
   }
 
+  getAllUsers() {
+    return this.http.get<any[]>(`${this.api}/users/all`);
+  }
+
   register(data: any) {
     return this.http.post(`${this.api}/signup`, data);
   }

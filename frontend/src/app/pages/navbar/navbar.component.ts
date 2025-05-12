@@ -20,7 +20,7 @@ export class NavbarComponent implements OnInit {
 
     console.log(this.user)
     if (!this.user) {
-      this.router.navigate(['/login']);
+      this.router.navigate(['/']);
       return;
     }
   }

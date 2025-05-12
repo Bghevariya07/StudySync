@@ -1,11 +1,46 @@
 <main class="flex mt-4 shadow rounded-3xl">
     <!-- Sidebar -->
-    <div class="w-1/3 border-r bg-white rounded-l-3xl flex flex-col">
-        <h2 class="text-xl bg-white font-semibold rounded-tl-3xl px-4 py-3 border-b">Conversations</h2>
-        <div class="overflow-y-auto overflow-hidden">
-            <div *ngFor="let conv of lastConversations"
+    <!-- Sidebar -->
+<div #searchContainer class="w-1/3 border-r bg-white rounded-l-3xl flex flex-col">
+    <div class="flex items-center justify-between px-4 py-3 border-b bg-white rounded-tl-3xl">
+        <h2 class="text-xl font-semibold">Conversations</h2>
+        <button (click)="toggleSearchBar()"
+            class="bg-blue-600 text-white rounded-2xl px-2 pb-1 text-2xl hover:bg-blue-800">+</button>
+    </div>
+
+    <div *ngIf="showUserSearch" class="px-4 py-2 border-b relative">
+        <input #searchInput type="text" [(ngModel)]="userSearchQuery" placeholder="Search by name..."
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        
+        <!-- Dropdown -->
+        <div *ngIf="userSearchQuery && filteredUserList().length > 0"
+            class="absolute z-10 w-full bg-white border border-gray-300 rounded-md shadow-lg mt-1">
+            <div *ngFor="let user of filteredUserList()"
+                class="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
+                (click)="startNewConversation(user.username)">
+                <div class="flex items-center gap-3">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gray-500 text-white flex items-center justify-center font-bold text-sm">
+                        {{ user.title[0]?.toUpperCase() }}
+                    </div>
+                    <div>
+                        <div class="font-semibold text-sm">
+                            {{ user.title }}
+                        </div>
+                        <div class="text-sm text-gray-500 truncate max-w-[180px]">
+                            Start a new conversation
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="overflow-y-auto overflow-hidden">
+        <div *ngFor="let conv of lastConversations"
             class="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-100"
-            [class.bg-blue-100]="selectedConversation?.user === conv.user" (click)="selectConversation(conv)">
+            [class.bg-blue-100]="selectedConversation?.user === conv.user"
+            (click)="selectConversation(conv)">
 
             <!-- Profile Circle -->
             <div class="flex items-center gap-3">
@@ -29,9 +64,9 @@
                 {{ conv.time | date: 'hh:mm a' }}
             </div>
         </div>
-
-        </div>
     </div>
+</div>
+
 
     <!-- Chat Window -->
     <div class="w-2/3 flex flex-col rounded-tr-3xl">
@@ -47,13 +82,14 @@
 
         <ng-template #notSelected>
             <div class="bg-gray-200 flex size-full rounded-tr-3xl items-center justify-center my-auto">
-                
+
                 Select a chat to send a message.
             </div>
         </ng-template>
 
         <!-- Outer container with fixed height -->
-        <div class="flex-1 h-full overflow-hidden flex flex-col bg-gray-200" [class.rounded-tr-3xl]="!selectedConversation">
+        <div class="flex-1 h-full overflow-hidden flex flex-col bg-gray-200"
+            [class.rounded-tr-3xl]="!selectedConversation">
 
             <!-- Messages List -->
             <div class="flex-1 overflow-y-auto flex flex-col-reverse gap-2 px-4 py-2">

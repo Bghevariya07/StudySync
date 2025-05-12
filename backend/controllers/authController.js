@@ -69,6 +69,19 @@ const getUserProfileByUsername = async (req, res) => {
     }
 };
 
+const getAllUsers = async (req, res) => {
+    try {
+      const users = await UserProfile.find({});
+      if (!users || users.length === 0) {
+        return res.status(404).json({ error: 'No users found' });
+      }
+      res.status(200).json(users);
+    } catch (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).json({ error: 'Server error' });
+    }
+  };
+
 const getUserByUsername = async (req, res) => {
     const { username } = req.params;
     try {
@@ -172,5 +185,6 @@ module.exports = {
     addCourseToUser,
     addCourse,
     updateCourse,
-    getAllCourses
+    getAllCourses,
+    getAllUsers
 };

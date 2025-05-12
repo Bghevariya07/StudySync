@@ -6,7 +6,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { SidebarComponent } from './pages/sidebar/sidebar.component';
 
 export const routes: Routes = [
-  { path: 'home', component: LandingComponent },
+  { path: 'landing', component: LandingComponent },
   { path: '', component: LandingComponent }, // Standalone public layout
 
   { path: 'login', component: LoginComponent },

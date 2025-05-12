@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { ChatService } from '../../services/chat.service';
 import { NgIf, NgFor, NgClass, CommonModule } from '@angular/common'; // ✅ Add these
@@ -25,6 +25,20 @@ export class ChatsComponent implements OnInit {
   allUsers: string[] = [];
   groupChats: any[] = [];
   userSessions: any[] = [];
+  userList: any[] = [];
+
+  @ViewChild('searchInput') searchInputRef!: ElementRef;
+  @ViewChild('searchContainer') searchContainerRef!: ElementRef;
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent) {
+    const clickedInside = this.searchContainerRef?.nativeElement.contains(event.target);
+
+    if (!clickedInside) {
+      this.showUserSearch = false;
+      this.userSearchQuery = '';
+    }
+  }
 
   constructor(
     private socketService: SocketService,
@@ -44,14 +58,11 @@ export class ChatsComponent implements OnInit {
       return;
     }
 
-    // Ensure user is fully ready before fetching schedules
     this.loadConversations();
 
     this.socketService.onMessage((message: any) => {
-      // Add to master list
       this.conversations.push(message);
 
-      // If the current conversation matches, show it live
       if (
         this.selectedConversation &&
         ((message.senderId === this.selectedConversation.user && message.receiverId === this.username) ||
@@ -60,7 +71,6 @@ export class ChatsComponent implements OnInit {
         this.selectedConversation.conversation.push(message);
       }
 
-      // Refresh sidebar
       this.lastConversations = [];
       this.allUsers = this.findAllUsers();
       this.allUsers.forEach(user => {
@@ -74,6 +84,43 @@ export class ChatsComponent implements OnInit {
         (a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()
       );
     });
+  }
+
+  showUserSearch: boolean = false;
+  userSearchQuery: string = '';
+
+  toggleSearchBar() {
+    this.showUserSearch = !this.showUserSearch;
+    this.userSearchQuery = '';
+
+    if (this.showUserSearch) {
+      setTimeout(() => {
+        this.searchInputRef?.nativeElement.focus();
+      }, 0);
+    }
+  }
+
+
+  filteredUserList(): any[] {
+    const query = this.userSearchQuery.toLowerCase();
+    return this.userList.filter(user =>
+      user.title.toLowerCase().includes(query)
+      // && !this.lastConversations.find(conv => conv.username === user.username) // Compare by username
+    );
+  }
+
+  startNewConversation(user: string) {
+    const existingConv = this.lastConversations.find(conv => conv.user === user);
+
+    console.log(existingConv)
+    if (existingConv) {
+      this.selectConversation(existingConv);
+    } else {
+      this.selectedConversation = { user, conversation: [] };
+    }
+
+    this.showUserSearch = false;
+    this.userSearchQuery = '';
   }
 
   clearChat() {
@@ -93,15 +140,27 @@ export class ChatsComponent implements OnInit {
 
       this.lastConversations.sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime());
     });
-    
+
     this.scheduleService.getSchedulesByUser(this.username).subscribe(res => {
       this.userSessions = res;
     });
+
+    this.authService.getAllUsers().subscribe(res => {
+      const userss = res;
+
+      const formattedUsers = userss.map((user: any) => ({
+        ...user,
+        title: `${user.username}: ${user.firstname} ${user.lastname}`
+      }));
+      this.userList.push(...formattedUsers);
+    });
+
+    console.log(this.userList)
   }
-  
+
   findAllUsers(): string[] {
     const userSet = new Set<string>();
-    
+
     this.conversations.forEach(msg => {
       if (msg.senderId !== this.username) userSet.add(msg.senderId);
       if (msg.receiverId !== this.username) userSet.add(msg.receiverId);
@@ -128,7 +187,7 @@ export class ChatsComponent implements OnInit {
   findSessionName(groupId: string): string {
     const session = this.userSessions.find(s => s.sessionId === groupId);
     return session ? session.sessionName : groupId;
-  }  
+  }
 
   getLastMessageByUser(targetUser: string) {
     let lastMessage = null;
@@ -173,7 +232,7 @@ export class ChatsComponent implements OnInit {
       this.newMessage = '';
 
       this.socketService.sendMessage(messagePayload); // 🔁 emit real-time message
-      
+
       // Update previews
       this.lastConversations = [];
       this.allUsers = this.findAllUsers();
