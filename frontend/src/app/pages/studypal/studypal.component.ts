@@ -67,6 +67,8 @@ export class StudypalComponent implements OnInit {
     eventResizeHandling: "Disabled",
     timeRangeSelectedHandling: "Enabled",
 
+    showToolTip: true,
+
     onTimeRangeSelected: (args) => {
       this.selectTime(args);
       this.isOwner = true;
@@ -76,6 +78,10 @@ export class StudypalComponent implements OnInit {
       } else {
         this.isPast = false;
       }
+    },
+
+    onBeforeEventRender: (args) => {
+      args.data.toolTip = args.data.toolTip;
     },
 
     onEventClick: (args) => this.openSessionForEdit(args),
@@ -194,7 +200,8 @@ export class StudypalComponent implements OnInit {
           text: schedule.courseId + " \n" + schedule.sessionName,
           note: schedule.note || '',
           backColor: schedule.timeTo < Date.now() ? "#f3f3f3" : !schedule.sessionId.includes(username) ? "#D1EEF3" : "#e8f1fd",
-          barColor: schedule.timeTo < Date.now() ? "#9ca3af" : !schedule.sessionId.includes(username) ? "#45B3C6" : "#3b82f6"
+          barColor: schedule.timeTo < Date.now() ? "#9ca3af" : !schedule.sessionId.includes(username) ? "#45B3C6" : "#3b82f6",
+          toolTip: this.createToolTip(schedule) 
         }));
         this.events = events;
 
@@ -299,6 +306,13 @@ export class StudypalComponent implements OnInit {
         });
       }
     }
+  }
+
+  // NEED UPDATE: TEMP
+  createToolTip(schedule: any) : any {
+    let toolTip = "Course Id: " + schedule.courseId + "\nSession: " + schedule.sessionName + (schedule.note ? "\nNotes: " + schedule.note : "");
+
+    return toolTip;
   }
 
   filterOptions(): void {

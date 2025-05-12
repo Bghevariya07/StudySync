@@ -73,7 +73,11 @@ export class ScheduleComponent implements OnInit {
       if (args.cell.start < DayPilot.Date.now()) {
         args.cell.properties.backColor = "#f3f4f6"; // soft gray column background
       }
-    }
+    },
+    showToolTip: true,
+    onBeforeEventRender: (args) => {
+      args.data.toolTip = args.data.toolTip;
+    },
   };
 
   ngOnInit(): void {
@@ -105,6 +109,12 @@ export class ScheduleComponent implements OnInit {
     });
   }
 
+  createToolTip(schedule: any) : any {
+    let toolTip = "Course Id: " + schedule.courseId + "\nSession: " + schedule.sessionName + (schedule.note ? "\nNotes: " + schedule.note : "");
+
+    return toolTip;
+  }
+
   loadEvents() {
     const today = new Date();
     const startOfWeek = new Date(today);
@@ -133,7 +143,8 @@ export class ScheduleComponent implements OnInit {
             members: schedule.members || [],
             courseId: schedule.courseId,
             barColor: isPast ? "#9ca3af" : isMember ? "#4CAF50" : isOwner ? "#7C3AED" : "#2196F3",
-            backColor: isPast ? "#f3f3f3" : isMember ? "#e6f4ea" : isOwner ? "#F3E8FF" : "#e8f1fd"
+            backColor: isPast ? "#f3f3f3" : isMember ? "#e6f4ea" : isOwner ? "#F3E8FF" : "#e8f1fd",
+            toolTip: this.createToolTip(schedule) 
           };
         });
 
